@@ -30,6 +30,7 @@ const Answers = ({ answers, selectedAnswer, answerStatus, onSelectAnswer }) => {
             <button
               onClick={() => onSelectAnswer(answer)}
               className={cssClasses}
+              disabled={answerStatus !== ""}
             >
               {answer}
             </button>

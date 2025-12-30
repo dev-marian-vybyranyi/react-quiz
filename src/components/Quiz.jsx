@@ -6,28 +6,13 @@ import QuestionTimer from "./QuestionTimer.jsx";
 import Question from "./Question.jsx";
 
 const Quiz = () => {
-  const [answerStatus, setAnswerStatus] = useState("");
   const [userAnswers, setUserAnswers] = useState([]);
 
-  const activeQuestionIndex =
-    answerStatus === "" ? userAnswers.length : userAnswers.length - 1;
-  const quizIsCompleted = activeQuestionIndex === QUESTIONS.length;
+  const activeQuestionIndex = userAnswers.length;
 
   const handleSelectAnswer = useCallback(
     (selectedAnswer) => {
-      setAnswerStatus("answered");
       setUserAnswers((prevAnswers) => [...prevAnswers, selectedAnswer]);
-      setTimeout(() => {
-        if (selectedAnswer === QUESTIONS[activeQuestionIndex].answers[0]) {
-          setAnswerStatus("correct");
-        } else {
-          setAnswerStatus("wrong");
-        }
-
-        setTimeout(() => {
-          setAnswerStatus("");
-        }, 2000);
-      }, 1000);
     },
     [activeQuestionIndex]
   );
@@ -50,11 +35,8 @@ const Quiz = () => {
     <div id="quiz">
       <Question
         key={activeQuestionIndex}
-        questiontext={QUESTIONS[activeQuestionIndex].text}
-        answers={QUESTIONS[activeQuestionIndex].answers}
+        questionIndex={activeQuestionIndex}
         onSelectAnswer={handleSelectAnswer}
-        selectedAnswer={userAnswers[userAnswers.length - 1]}
-        answerStatus={answerStatus}
         onSkipAnswer={handleSkipAnswer}
       />
     </div>
