@@ -4,21 +4,38 @@ import quizComplete from "../assets/quiz-complete.png";
 import QuestionTimer from "./QuestionTimer.jsx";
 
 const Quiz = () => {
+  const [answerStatus, setAnswerStatus] = useState("");
   const [userAnswers, setUserAnswers] = useState([]);
 
-  const activeQuestionIndex = userAnswers.length;
+  const activeQuestionIndex =
+    answerStatus === "" ? userAnswers.length : userAnswers.length - 1;
   const quizIsCompleted = activeQuestionIndex === QUESTIONS.length;
 
-  const handleSelectAnswer = useCallback((selectedAnswer) => {
-    setUserAnswers((prevAnswers) => [...prevAnswers, selectedAnswer]);
-  }, []);
+  const handleSelectAnswer = useCallback(
+    (selectedAnswer) => {
+      setAnswerStatus("answered");
+      setUserAnswers((prevAnswers) => [...prevAnswers, selectedAnswer]);
+      setTimeout(() => {
+        if (selectedAnswer === QUESTIONS[activeQuestionIndex].answers[0]) {
+          setAnswerStatus("correct");
+        } else {
+          setAnswerStatus("wrong");
+        }
+
+        setTimeout(() => {
+          setAnswerStatus("");
+        }, 2000);
+      }, 1000);
+    },
+    [activeQuestionIndex]
+  );
 
   const handleSkipAnswer = useCallback(
     () => handleSelectAnswer(null),
     [handleSelectAnswer]
   );
 
-  if (quizIsCompleted) {
+  if (activeQuestionIndex >= QUESTIONS.length) {
     return (
       <div id="summary">
         <img src={quizComplete} alt="Quiz Complete" />
@@ -27,9 +44,8 @@ const Quiz = () => {
     );
   }
 
-  const shuffledAnswers = [...QUESTIONS[activeQuestionIndex].answers].sort(
-    () => Math.random() - 0.5
-  );
+  const shuffledAnswers = [...QUESTIONS[activeQuestionIndex].answers];
+  shuffledAnswers.sort(() => Math.random() - 0.5);
 
   return (
     <div id="quiz">
@@ -41,13 +57,32 @@ const Quiz = () => {
         />
         <h2>{QUESTIONS[activeQuestionIndex].text}</h2>
         <ul id="answers">
-          {shuffledAnswers.map((answer) => (
-            <li key={answer} className="answer">
-              <button onClick={() => handleSelectAnswer(answer)}>
-                {answer}
-              </button>
-            </li>
-          ))}
+          {shuffledAnswers.map((answer) => {
+            const isSelected = userAnswers[userAnswers.length - 1] === answer;
+            let cssClasses = "";
+
+            if (answerStatus === "answered" && isSelected) {
+              cssClasses = "selected";
+            }
+
+            if (
+              (answerStatus === "correct" || answerStatus === "wrong") &&
+              isSelected
+            ) {
+              cssClasses = answerStatus;
+            }
+
+            return (
+              <li key={answer} className="answer">
+                <button
+                  onClick={() => handleSelectAnswer(answer)}
+                  className={cssClasses}
+                >
+                  {answer}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>
